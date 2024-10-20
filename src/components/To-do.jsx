@@ -1,20 +1,35 @@
-import React, { useState } from 'react'
+import React, { useState,useEffect } from 'react'
 
 export default function Todo() {
   const [Task, setTask] = useState('')
-  const [MainTask, setMainTask] = useState([])
+ 
+  const [MainTask, setMainTask] = useState(()=>{ 
+    const data=localStorage.getItem('todo')
+    return data? JSON.parse(data):[]
+  })
   const [isEdit, setIsEdit] = useState(null)
   const [newEdit, setNewEdit] = useState('')
+
+  useEffect(()=>{
+    localStorage.setItem('todo',JSON.stringify(MainTask))
+  },[MainTask])
+  
+
+
+
+
+
   function handleAdd() {
+    if (Task.trim() !== '') { 
     setMainTask([...MainTask, { toDo: Task, isCheck: false }])
     setTask('')
-
+    }
   }
-  function handelEdit(index) {
+  function handleEdit(index) {
     setIsEdit(index)
     setNewEdit(MainTask[index].toDo)
   }
-  function handelSave(index) {
+  function handleSave(index) {
     const updateCheckTask = MainTask.map((v, i) =>
       i === index ? { ...v, toDo: newEdit } : v
     )
@@ -33,7 +48,7 @@ export default function Todo() {
     setMainTask(updatetask)
   }
   
-  function handelCheck(index) {
+  function handleCheck(index) {
     const updateCheckTask = MainTask.map((v, i) =>
       i === index ? { ...v, isCheck: !v.isCheck } : v
     )
@@ -43,14 +58,14 @@ export default function Todo() {
   return (
     <div >
       <div  className='font-extrabold '><h1>To Do List</h1></div>
-      <input  value={Task} onChange={handleChange} className='border-black border' type="text" />
+      <input  value={Task} onChange={handleChange} className='border-black border' type="text" onKeyDown={} />
       <button className='border bg-black text-white px-2 text-center font-bold' onClick={handleAdd}>save</button>
       <h1 className='font-bold '>My Task To Do</h1>
       {MainTask.map((value, index) => {
         return (
 
           <div className='flex m-1' key={index}>
-            <input className='p-1 m-1' type="checkbox" onChange={() => handelCheck(index)}  />
+            <input className='p-1 m-1' type="checkbox" onChange={() => handleCheck(index)} checked={value.isCheck}   />
             {isEdit === index ? (
                 <input className='border-2 border-black' type='text' value={newEdit} onChange={(e) => setNewEdit(e.target.value)} />
               ) : (
@@ -59,9 +74,9 @@ export default function Todo() {
 
               }
               {isEdit === index ? (
-                  <button onClick={()=> handelSave(index)} className='border bg-black text-white px-2 text-center font-bold mx-1'>Save</button>
+                  <button onClick={()=> handleSave(index)} className='border bg-black text-white px-2 text-center font-bold mx-1'>Save</button>
                 ) : (
-                  <button onClick={()=> handelEdit(index)} className='border bg-black text-white px-2 text-center font-bold mx-1'>Edit</button>
+                  <button onClick={()=> handleEdit(index)} className='border bg-black text-white px-2 text-center font-bold mx-1'>Edit</button>
                 )}
           
             <button onClick={()=>handleDelete(index)} className='border bg-black text-white px-2 text-center font-bold mx-1'>Delete</button></div>)
